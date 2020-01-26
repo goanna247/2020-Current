@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-
+#include <frc/Timer.h>
 #include "controllers/Controllers.h"
 
 #define __CONTROLMAP_USING_JOYSTICK__ false
@@ -51,6 +51,8 @@ struct ControlMap {
   // Control System
   static const int PressureSensorPort;
   static const int CompressorPort;
+
+
 
 
   // --------------- Defined Buttons -----------------
@@ -108,7 +110,7 @@ struct ControlMap {
   #if __CONTROLMAP_USING_JOYSTICK__
 
   #else
-  static const wml::controllers::tAxis ClimberControl;
-  static const wml::controllers::tButton ClimberUp;
+  static const wml::controllers::tPOV DpadTest;
+
   #endif
 }; 

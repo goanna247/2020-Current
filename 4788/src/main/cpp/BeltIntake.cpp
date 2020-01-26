@@ -1,6 +1,7 @@
 #include "BeltIntake.h"
 #include <iostream>
 
+using namespace frc;
 using namespace wml;
 using namespace wml::controllers;
 
@@ -9,7 +10,6 @@ BeltIntake::BeltIntake(Gearbox &BeltIntakeMotors, actuators::DoubleSolenoid &Int
 void BeltIntake::TeleopOnUpdate(double dt) {
 
 double IntakePower;
-
 
 if (_contGroup.Get(ControlMap::DownIntake, Controller::ONFALL)) {
 	if (ToggleEnabled) {
@@ -36,7 +36,7 @@ void BeltIntake::AutoOnUpdate(double dt) {
 
 }
 
-void BeltIntake::TestOnUpdate(double dt) {
+void BeltIntake::TestOnUpdate(double dt, double lastTimestamp) {
   timer.Start();
   while (timer.Get() >= 10) {
 	  double Speed = 1;
@@ -51,5 +51,14 @@ void BeltIntake::TestOnUpdate(double dt) {
 	}
 	timer.Stop();
 	timer.Reset();
-  
+
+	for (int i; i >= 2; i++) {
+		if ((int)(lastTimestamp) % 2) {
+			_IntakeDown.SetTarget(actuators::BinaryActuatorState::kForward);
+		} else {
+			_IntakeDown.SetTarget(actuators::BinaryActuatorState::kReverse);
+		}
+	}
+
+
 }

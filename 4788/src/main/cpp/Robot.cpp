@@ -41,6 +41,7 @@ void Robot::RobotInit() {
   // Registering our systems to be called via strategy
   StrategyController::Register(drivetrain);
   NTProvider::Register(drivetrain); // Registers system to networktables
+
 }
 
 void Robot::RobotPeriodic() {
@@ -48,6 +49,7 @@ void Robot::RobotPeriodic() {
 
   StrategyController::Update(dt);
   NTProvider::Update();
+
 }
 
 void Robot::DisabledInit() {
@@ -56,12 +58,14 @@ void Robot::DisabledInit() {
 
 void Robot::AutonomousInit() {
   Schedule(std::make_shared<DrivetrainAuto>(*drivetrain, wml::control::PIDGains{ "I am gains", 1, 0, 0 }));
+ // lastTimestamp = Timer::GetFPGATimestamp();
 }
 void Robot::AutonomousPeriodic() {
   turret->AutoOnUpdate(dt);
   magLoader->AutoOnUpdate(dt);
   beltIntake->AutoOnUpdate(dt);
   climber->AutoOnUpdate(dt);
+  controlPannel->AutoOnUpdate(dt);
 }
 
 void Robot::TeleopInit() { 
@@ -72,6 +76,7 @@ void Robot::TeleopPeriodic() {
   magLoader->TeleopOnUpdate(dt);
   beltIntake->TeleopOnUpdate(dt);
   climber->TeleopOnUpdate(dt);
+  controlPannel->TeleopOnUpdate(dt);
 }
 
 void Robot::TestInit() {
@@ -80,6 +85,7 @@ void Robot::TestInit() {
 void Robot::TestPeriodic() {
   turret->TestOnUpdate(dt);
   magLoader->TestOnUpdate(dt);
-  beltIntake->TestOnUpdate(dt);
+  beltIntake->TestOnUpdate(dt, lastTimestamp);
   climber->TestOnUpdate(dt);
+  controlPannel->TestOnUpdate(dt);
 }

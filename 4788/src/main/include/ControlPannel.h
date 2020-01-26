@@ -11,10 +11,12 @@ class ControlPannel {
 		void TeleopOnUpdate(double dt);
 		void AutoOnUpdate(double dt);
 		void TestOnUpdate(double dt);
+  	frc::Timer timer;
+
 
 	private:
 		wml::Gearbox &_ControlPannelMotor;
 		wml::actuators::DoubleSolenoid &_PannelPnSol;
 		wml::controllers::SmartControllerGroup &_contGroup;
-		frc::Timer timer;
+
 };

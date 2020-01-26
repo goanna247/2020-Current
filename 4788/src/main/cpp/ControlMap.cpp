@@ -6,6 +6,8 @@ using hand = frc::XboxController::JoystickHand; // Only for FRC controllers
 using namespace wml;
 using namespace wml::controllers;
 
+
+
 void ControlMap::InitSmartControllerGroup(SmartControllerGroup &contGroup) {}
 
 
@@ -55,6 +57,7 @@ const int ControlMap::IntakeDownPort1 = 99;
 const int ControlMap::IntakeDownPort2 = 99;
 const double ControlMap::IntakeDownActuationTime = 99;
 
+
 // MagLoader
 const int ControlMap::MagLoaderMotorPort = 8;
 const int ControlMap::StartMagLimitPort = 0;
@@ -65,11 +68,11 @@ const int ControlMap::Position5LimitPort = 2;
 const int ControlMap::ClimberActuatorPort1 = 0;
 const int ControlMap::ClimberActuatorPort2 = 1;
 const double ControlMap::ClimberActuationTime = 0.2;
-//const int ControlMap::
 
 // Control System
 const int ControlMap::PressureSensorPort = 0;
 const int ControlMap::CompressorPort = 1;
+
 
 //Wheel of cringe
 const int ControlMap::ControlPannelPort = 99;
@@ -129,8 +132,8 @@ const double ControlMap::PannelActuationTime = 99;
 
 //Climber 
 #if __CONTROLMAP_USING_JOYSTICK__
-//please chaneg 
+//please change
   const tAxis ControlMap::ClimberControl{ CoDriver, 2};
 #else
-  const tAxis ControlMap::ClimberControl{ CoDriver, XboxController::kLeftYAxis};
+  const tPOV ControlMap::DpadTest{ Driver, XboxController::kTop};
 #endif

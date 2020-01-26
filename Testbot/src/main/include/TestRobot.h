@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 
 #include <frc/Timer.h>
 #include <frc/TimedRobot.h>
@@ -17,6 +18,42 @@
 
 #include "sensors/PressureSensor.h"
 #include "sensors/LimitSwitch.h"
+
+#include <string>
+
+#include "devices/StateDevice.h"
+#include "control/PIDController.h"
+#include "strategy/StrategySystem.h"
+#include "control/MotorFilters.h"
+#include "Gearbox.h"
+#include "strategy/Strategy.h"
+#include "controllers/Controllers.h"
+#include "sensors/BinarySensor.h"
+
+#include <frc/SpeedControllerGroup.h>
+#include <frc/Spark.h>
+#include <frc/PowerDistributionPanel.h>
+
+#include "WMLCtre.h"
+#include "controllers/Controllers.h"
+#include "actuators/BinaryServo.h"
+#include "actuators/Compressor.h"
+#include "actuators/DoubleSolenoid.h"
+#include "actuators/VoltageController.h"
+#include "Drivetrain.h"
+#include "sensors/Encoder.h"
+#include "sensors/LimitSwitch.h"
+#include "sensors/NavX.h"
+#include "sensors/PressureSensor.h"
+#include <networktables/NetworkTableInstance.h>
+#include "control/PIDController.h"
+#include "MotionProfiling.h"
+#include "Toggle.h"
+
+#include "Usage.h"
+
+
+#include <frc/smartdashboard/SmartDashboard.h>
 
 
 #include "WMLCtre.h"
@@ -38,22 +75,8 @@ class Robot : public frc::TimedRobot {
 
   double PIDCalc(double dt, double input);
 
-  wml::controllers::XboxController *xbox1;
-
-  wml::sensors::LimitSwitch LimitSwitch0{0, false};
-  wml::sensors::LimitSwitch LimitSwitch1{1, false};
-  wml::sensors::LimitSwitch LimitSwitch2{2, false};
   wml::VictorSpx *BeltMotor;
 
-
-  wml::Gearbox *left, *right;
-  wml::Drivetrain *drivetrain;
-
-  frc::DoubleSolenoid *hatchEjector;
-
-  nt::NetworkTableEntry TargetX;
-  nt::NetworkTableEntry TargetY;
-  nt::NetworkTableEntry ImageHeight;
-  nt::NetworkTableEntry ImageWidth;
-  std::shared_ptr<nt::NetworkTable> table;
+  private:
+    wml::controllers::XboxController *xbox1;
 };
