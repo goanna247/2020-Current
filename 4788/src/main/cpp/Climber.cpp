@@ -10,7 +10,7 @@ void Climber::TeleopOnUpdate(double dt) {
 	
 }
 void Climber::AutoOnUpdate(double dt) {
-
+//not being used 
 }
 
 void Climber::TestOnUpdate(double dt) {
