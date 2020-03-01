@@ -15,6 +15,8 @@ class DrivetrainManual : public wml::Strategy {
                      wml::Drivetrain &drivetrain,
                      wml::actuators::DoubleSolenoid &ChangeGears, 
                      wml::actuators::DoubleSolenoid &Shift2PTO, 
+                     frc::Servo &PTORatchetLeft,
+                     frc::Servo &PTORatchetRight,
                      wml::controllers::SmartControllerGroup &contGroup);
 
     void OnUpdate(double dt) override;
@@ -23,10 +25,18 @@ class DrivetrainManual : public wml::Strategy {
     wml::Drivetrain &_drivetrain;
     wml::actuators::BinaryActuator &_ChangeGears;
     wml::actuators::BinaryActuator &_Shift2PTO;
+    frc::Servo &_PTORatchetLeft;
+    frc::Servo &_PTORatchetRight;
     wml::controllers::SmartControllerGroup &_contGroup;
     double leftSpeed = 0, rightSpeed = 0;
     double currentSpeed;
     bool PTOactive = false;
+
+    // NT
+    nt::NetworkTableEntry LPower;
+    nt::NetworkTableEntry RPower;
+    nt::NetworkTableEntry LEC;
+    nt::NetworkTableEntry REC;
 };
 
 // Class that Runs in Autonomous
@@ -35,6 +45,8 @@ class DrivetrainAuto : public wml::Strategy {
     DrivetrainAuto(wml::Drivetrain &drivetrain, 
                    WayFinder &wayFinder,
                    wml::control::PIDGains gains,
+                   wml::actuators::DoubleSolenoid &ChangeGears, 
+                   wml::actuators::DoubleSolenoid &Shift2PTO, 
                    int &autoSelector,
                    bool &StartDoComplete,
                    bool &strt,
@@ -50,6 +62,8 @@ class DrivetrainAuto : public wml::Strategy {
     wml::Drivetrain &_drivetrain;
     WayFinder &_wayFinder;
     wml::control::PIDController _pid;
+    wml::actuators::DoubleSolenoid &_ChangeGears;
+    wml::actuators::DoubleSolenoid &_Shift2PTO;
     double LeftPower = 0, RightPower = 0;
     double currentSpeed;
 

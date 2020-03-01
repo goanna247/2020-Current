@@ -9,17 +9,29 @@ DrivetrainManual::DrivetrainManual(std::string name,
                                    Drivetrain &drivetrain,
                                    wml::actuators::DoubleSolenoid &ChangeGears, 
                                    actuators::DoubleSolenoid &Shift2PTO, 
+                                   frc::Servo &PTORatchetLeft,
+                                   frc::Servo &PTORatchetRight,
                                    SmartControllerGroup &contGroup) : 
                                    
-                                   Strategy(name), 
+                                   Strategy(name),
                                    _drivetrain(drivetrain),
                                    _ChangeGears(ChangeGears), 
                                    _Shift2PTO(Shift2PTO), 
+                                   _PTORatchetLeft(PTORatchetLeft),
+                                   _PTORatchetRight(PTORatchetRight),
                                    _contGroup(contGroup) {
-                                   
   Requires(&drivetrain);
   SetCanBeInterrupted(true);
   SetCanBeReused(true);
+
+  // nt
+  auto inst = nt::NetworkTableInstance::GetDefault();
+  auto DriveTable = inst.GetTable("DriveTable");
+  // nt entry
+  LPower = DriveTable->GetEntry("LPower");
+  RPower = DriveTable->GetEntry("RPower");
+  LEC = DriveTable->GetEntry("LEC");
+  REC = DriveTable->GetEntry("REC");
 }
 
 // On Loop Update, this code runs (Just a drivebase)
@@ -34,40 +46,16 @@ void DrivetrainManual::OnUpdate(double dt) {
     rightSpeed = joyForward - joyTurn;
   #else
 
-    // Left Drive/ Acceleration
-    if (fabs(_contGroup.Get(ControlMap::DrivetrainLeft)) > ControlMap::xboxDeadzone) { // I'm So fab
-      // Forwards
-      if (_contGroup.Get(ControlMap::DrivetrainLeft) < -(leftSpeed + ControlMap::MaxDrivetrainAcceleration)) {
-        leftSpeed = leftSpeed + ControlMap::MaxDrivetrainAcceleration;
-      } else if (_contGroup.Get(ControlMap::DrivetrainLeft) < leftSpeed) {
-        leftSpeed = fabs(_contGroup.Get(ControlMap::DrivetrainLeft));
-      }
-      // Reverse 
-      if (-_contGroup.Get(ControlMap::DrivetrainLeft) < (leftSpeed - ControlMap::MaxDrivetrainAcceleration)) {
-        leftSpeed = leftSpeed - ControlMap::MaxDrivetrainAcceleration;
-      } else if (_contGroup.Get(ControlMap::DrivetrainLeft) > leftSpeed) {
-        leftSpeed = _contGroup.Get(ControlMap::DrivetrainLeft);
-        leftSpeed = -leftSpeed;
-      } 
+    if (fabs(_contGroup.Get(ControlMap::DrivetrainLeft)) > ControlMap::xboxDeadzone) {
+      leftSpeed = _contGroup.Get(ControlMap::DrivetrainLeft);
+      leftSpeed = -(fabs(leftSpeed) * leftSpeed);
     } else {
       leftSpeed = 0;
     }
 
-    // Right Drive/ Acceleration
     if (fabs(_contGroup.Get(ControlMap::DrivetrainRight)) > ControlMap::xboxDeadzone) {
-      // Forwards
-      if (_contGroup.Get(ControlMap::DrivetrainRight) < -(rightSpeed + ControlMap::MaxDrivetrainAcceleration)) {
-        rightSpeed = rightSpeed + ControlMap::MaxDrivetrainAcceleration;
-      } else if (_contGroup.Get(ControlMap::DrivetrainRight) < rightSpeed) {
-        rightSpeed = fabs(_contGroup.Get(ControlMap::DrivetrainRight));
-      }
-      // Reverse
-      if (-_contGroup.Get(ControlMap::DrivetrainRight) < (rightSpeed - ControlMap::MaxDrivetrainAcceleration)) {
-        rightSpeed = rightSpeed - ControlMap::MaxDrivetrainAcceleration;
-      } else if (_contGroup.Get(ControlMap::DrivetrainRight) > rightSpeed) {
-        rightSpeed = _contGroup.Get(ControlMap::DrivetrainRight);
-        rightSpeed = -rightSpeed;
-      }
+      rightSpeed = _contGroup.Get(ControlMap::DrivetrainRight);
+      rightSpeed = -(fabs(rightSpeed) * rightSpeed);
     } else {
       rightSpeed = 0;
     }
@@ -75,35 +63,53 @@ void DrivetrainManual::OnUpdate(double dt) {
 
   #endif
 
+  // Invert Drivebase
   if (_contGroup.Get(ControlMap::ReverseDrivetrain, Controller::ONRISE)) {
     _drivetrain.SetInverted(!_drivetrain.GetInverted());
   }
 
+  // Shift Gear 
   if (_contGroup.Get(ControlMap::ShiftGears)) {
     _ChangeGears.SetTarget(actuators::BinaryActuatorState::kForward);
   } else {
     _ChangeGears.SetTarget(actuators::BinaryActuatorState::kReverse);
   }
 
+
+  // PTO Toggle
   if (_contGroup.Get(ControlMap::Shift2PTO, Controller::ONRISE)) {
     if (!PTOactive) {
-      _Shift2PTO.SetTarget(actuators::BinaryActuatorState::kForward);
       PTOactive = true;
     } else if (PTOactive) {
-      _Shift2PTO.SetTarget(actuators::BinaryActuatorState::kReverse);
       PTOactive = false;
     }
   }
 
-  _ChangeGears.Update(dt);
-  _Shift2PTO.Update(dt);
+  // PTO Shifter
+  if (!PTOactive) {
+    _Shift2PTO.SetTarget(actuators::BinaryActuatorState::kReverse);
+    _PTORatchetLeft.Set(0);
+    _PTORatchetRight.Set(0);
+  } else if (PTOactive) {
+    _PTORatchetLeft.Set(ControlMap::PTORatchetLeftPosition);
+    _PTORatchetRight.Set(ControlMap::PTORatchetRightPosition);
+    _Shift2PTO.SetTarget(actuators::BinaryActuatorState::kForward);
+  }
 
+  // Restrict the speed of the drivetrain
   leftSpeed *= ControlMap::MaxDrivetrainSpeed;
   rightSpeed *= ControlMap::MaxDrivetrainSpeed;
 
-  
-  // std::cout << "LeftDrive Encoder " << _drivetrain.GetConfig().leftDrive.encoder->GetEncoderRotations() << std::endl;
-  // std::cout << "RightDrive Encoder " << _drivetrain.GetConfig().rightDrive.encoder->GetEncoderRotations() << std::endl;
+  // std::cout << "Speed " << leftSpeed << "," << rightSpeed << std::endl;
+
+  LPower.SetDouble(leftSpeed);
+  RPower.SetDouble(rightSpeed);
+  LEC.SetDouble(_drivetrain.GetConfig().leftDrive.encoder->GetEncoderRotations());
+  REC.SetDouble(_drivetrain.GetConfig().rightDrive.encoder->GetEncoderRotations());
+
+  // Update pneumatics
+  _ChangeGears.Update(dt);
+  _Shift2PTO.Update(dt);
 
   _drivetrain.Set(leftSpeed, rightSpeed);
 }

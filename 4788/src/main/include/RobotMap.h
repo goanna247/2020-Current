@@ -17,6 +17,7 @@
 #include <frc/Spark.h>
 #include <frc/PowerDistributionPanel.h>
 #include <frc/PWMSparkMax.h>
+#include <frc/Servo.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/AnalogInput.h>
 
@@ -72,21 +73,15 @@ struct RobotMap {
 
   // Drive System
   struct DriveSystem {
-    // // Front
-    // wml::SparkMax FLmax{ ControlMap::DriveMAXportFL, wml::SparkMax::MotorType::kNEO, 42 };
-    // wml::SparkMax FRmax{ ControlMap::DriveMAXportFR, wml::SparkMax::MotorType::kNEO, 42 };
-
-    // // Back
-    // wml::SparkMax BLmax{ ControlMap::DriveMAXportBL, wml::SparkMax::MotorType::kNEO, 42 };
-    // wml::SparkMax BRmax{ ControlMap::DriveMAXportBR, wml::SparkMax::MotorType::kNEO, 42 };
 
     // Front
-    wml::TalonSrx FLmax{ ControlMap::DriveMAXportFL, 80 };
-    wml::TalonSrx FRmax{ ControlMap::DriveMAXportFR, 80 };
+    wml::SparkMax FLmax{ ControlMap::DriveMAXportFL, wml::SparkMax::MotorType::kNEO, 42 };
+    wml::SparkMax FRmax{ ControlMap::DriveMAXportFR, wml::SparkMax::MotorType::kNEO, 42 };
 
     // Back
-    wml::VictorSpx BLmax{ ControlMap::DriveMAXportBL };
-    wml::VictorSpx BRmax{ ControlMap::DriveMAXportBR };
+    wml::SparkMax BLmax{ ControlMap::DriveMAXportBL, wml::SparkMax::MotorType::kNEO, 42 };
+    wml::SparkMax BRmax{ ControlMap::DriveMAXportBR, wml::SparkMax::MotorType::kNEO, 42 };
+
 
     wml::actuators::MotorVoltageController leftMotors = wml::actuators::MotorVoltageController::Group(FLmax, BLmax);
     wml::actuators::MotorVoltageController rightMotors = wml::actuators::MotorVoltageController::Group(FRmax, BRmax);
@@ -94,11 +89,18 @@ struct RobotMap {
     wml::Gearbox LGearbox{ &leftMotors, &FLmax, 8.45 };
     wml::Gearbox RGearbox{ &rightMotors, &FRmax, 8.45 };
 
+    // Gear Changing
     wml::actuators::DoubleSolenoid ChangeGearing{ ControlMap::PCModule, ControlMap::ChangeGearPort1, ControlMap::ChangeGearPort2, ControlMap::ChangeGearTime };
     wml::actuators::DoubleSolenoid Shift2PTO{ ControlMap::PCModule, ControlMap::Shift2PTOPort1, ControlMap::Shift2PTOPort2, ControlMap::ShiftPTOActuationTime };
 
+    // Ratchet Control
+    frc::Servo PTORatchetLeft{ ControlMap::PTORatchetLeftPort };
+    frc::Servo PTORatchetRight{ ControlMap::PTORatchetRightPort };
+
     wml::sensors::NavX navx{};
     wml::sensors::NavXGyro gyro{ navx.Angular(wml::sensors::AngularAxis::YAW) };
+    wml::sensors::NavXGyro gyro1{ navx.Angular(wml::sensors::AngularAxis::PITCH) };
+    wml::sensors::NavXGyro gyro2{ navx.Angular(wml::sensors::AngularAxis::ROLL) };
 
     wml::DrivetrainConfig driveTrainConfig{ LGearbox, RGearbox, &gyro, 0.56, 0.60, 0.0762, 50 };
     wml::Drivetrain drivetrain{ driveTrainConfig };
@@ -110,23 +112,28 @@ struct RobotMap {
     wml::sensors::LimitSwitch LeftLimit{ ControlMap::TurretLeftLimitPort, ControlMap::TurretLeftLimitInvert };
     wml::sensors::LimitSwitch RightLimit{ ControlMap::TurretRightLimitPort, ControlMap::TurretRightLimitInvert };
     wml::sensors::LimitSwitch AngleDownLimit{ ControlMap::TurretAngleDownLimitPort, ControlMap::TurretAngleDownLimitInvert };
-    
 
     // Rotation
     wml::TalonSrx TurretRotation{ ControlMap::TurretRotationPort, 2048 };
     wml::actuators::MotorVoltageController rotationMotors = wml::actuators::MotorVoltageController::Group(TurretRotation);
-    wml::Gearbox turretRotation{ &rotationMotors, &TurretRotation, 8.45 };
+    wml::Gearbox turretRotation{ &rotationMotors, &TurretRotation, 0 };
 
     // Angle
-    wml::TalonSrx TurretAngle{ ControlMap::TurretAnglePort, 2048 };
+    wml::TalonSrx TurretAngle{ ControlMap::TurretAnglePort};
+    wml::sensors::DigitalEncoder angleEncoder{ ControlMap::AngleEncoderPort1, ControlMap::AngleEncoderPort2, 2048 };
     wml::actuators::MotorVoltageController turretAngleMotors = wml::actuators::MotorVoltageController::Group(TurretAngle);
-    wml::Gearbox turretAngle{ &turretAngleMotors, &TurretAngle, 8.45 };
+    wml::Gearbox turretAngle{ &turretAngleMotors, &angleEncoder, 0 };
+
 
     // Fly Wheel
-    wml::TalonSrx TurretFlyWheel{ ControlMap::TurretFlyWheelPort, 2048 };
-    wml::TalonSrx TurretFlyWheel2{ ControlMap::TurretFlyWheelPort2, 2048 };
+    wml::TalonSrx TurretFlyWheel{ ControlMap::TurretFlyWheelPort };
+    wml::sensors::DigitalEncoder flywheelEncoder{ ControlMap::FlyWheelEncoderPort1, ControlMap::FlyWheelEncoderPort2, 2048 };
+    wml::TalonSrx TurretFlyWheel2{ ControlMap::TurretFlyWheelPort2 };
     wml::actuators::MotorVoltageController flywheelMotors = wml::actuators::MotorVoltageController::Group(TurretFlyWheel, TurretFlyWheel2);
-    wml::Gearbox turretFlyWheel{ &flywheelMotors, &TurretFlyWheel, 8.45 };
+    wml::Gearbox turretFlyWheel{ &flywheelMotors, &flywheelEncoder, 0 };
+    
+
+
   };
   Turret turret;
 
@@ -160,7 +167,7 @@ struct RobotMap {
    ControlPannel controlPannel;
 
   struct Climber {
-    wml::actuators::DoubleSolenoid ClimberActuator{ ControlMap::ClimberActuatorPort1, ControlMap::ClimberActuatorPort2, ControlMap::ClimberActuationTime };
+    wml::actuators::DoubleSolenoid ClimberActuator{ ControlMap::PCModule, ControlMap::ClimberActuatorPort1, ControlMap::ClimberActuatorPort2, ControlMap::ClimberActuationTime };
 
     wml::TalonSrx Climber2Motor{ ControlMap::ClimberMotor2Port, 2048};
     wml::actuators::MotorVoltageController Climber2Motors = wml::actuators::MotorVoltageController::Group(Climber2Motor);
@@ -175,6 +182,10 @@ struct RobotMap {
   struct Auto {
 
     /**
+     * Start Position is (3.2, -2.4) or 1.96 meters from the wall to the wheel (straight)
+     */
+
+    /**
      * Auto Selection
      * 8 Ball = 1 (Default)
      * 6 Ball = 2
@@ -184,9 +195,9 @@ struct RobotMap {
     */ 
 
     // Selection
-    int AutoSelecter = 5;
+    int AutoSelecter = 1;
 
-    // 6 Ball
+    // Public booleans for subsystems
     bool StartDoComplete = true;
     bool StartPointComplete = false;
     bool WayPoint1Complete = false;
@@ -208,12 +219,17 @@ struct RobotMap {
     // Extra Controller
     frc::I2C arduino{ frc::I2C::kOnboard, 8 };
     uint8_t message = 73;
-    // Climber
+    // Climbe 
 
-   //Turret
-   std::shared_ptr<nt::NetworkTable> rotationTable = nt::NetworkTableInstance::GetDefault().GetTable("Sharing values");
+    //Turret
+    std::shared_ptr<nt::NetworkTable> rotationTable = nt::NetworkTableInstance::GetDefault().GetTable("Sharing values");
 
-   bool TurretDisable = false;
+    
+    bool TurretToggle = false;
+    bool FlyWheelToggle = false;
+
+    // wml::DigitalEncoder encoderl { ControlMap::encoderPort1, ControlMap::encoderPort2, 2048};
+    
   };
   ControlSystem controlSystem;
 };
