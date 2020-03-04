@@ -7,7 +7,8 @@ enum class IntakeDownState {
   STOWED,
   DEPLOYED,
   INTAKING,
-  EJECTING
+  EJECTING,
+  IDLE
 };
 
 
@@ -21,10 +22,7 @@ class Intake : public wml::StrategySystem {
     _downSetPoint = setpoint;
   } 
 
-  void SetMove(const IntakeMovingState st, double setpoint) {
-    _rotationState = st;
-    _rotationSetPoint = setpoint;
-  }
+
 
   void UpdateSetMove(double dt) {
 
@@ -70,6 +68,9 @@ class Intake : public wml::StrategySystem {
     TurretRotationState _rotState{TurretRotationState::MANUAL};
   TurretFlywheelState _flywheelState{TurretFlywheelState::MANUAL};
   */
+
+ IntakeDownState _downSetPoint{IntakeDownState::STOWED};
+ IntakeDownState 
 
   IntakeDownState _
   IntakeMovingState 

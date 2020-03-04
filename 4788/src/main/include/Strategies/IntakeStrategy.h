@@ -15,14 +15,43 @@ class IntakeManualStrategy : wml::Strategy {
   }
 
   void OnUpdate(double dt) override {
-    double beltintake_power = ControlMap::doJoyDeadzone(_controllers.Get(ControlMap::Intake));
-    
-    if (_controllers.Get(ControlMap::DownIntake)) {
-      _IntakeDown.SetTarget(wml::actuators::BinaryActuatorState::kForward);
-    } else {
-      
+    actuators::BinaryActuatorState pistonState{actuators::BinaryActuatorState::kForward};
+    double power = 0;
+
+    switch (_state) {
+      case IntakeDownState::DEPLOYED:
+        pistonState = actuators::BinaryActuatorState::kForward;
+      break;
+
+      case IntakeDownState::STOWED:
+        pistonState = actuators::BinaryActuatorState::kReverse;
+      break;
+
+      case IntakeDownState::INTAKING:
+        power = 0.7;
+      break;
+
+      case IntakeDownState::EJECTING:
+        power = -0.7;
+      break;
+
+      case IntakeDownState::IDLE:
+        power = 0;
+      break;
     }
-    beltintake_power = ControlMap::
+
+    if (_contGroup.Get(ControlMap::DownIntake, Controller::ONRISE)) {
+      _state = IntakeDownState::DEPLOYED
+      if (_contGroup.Get(ControlMap::Intake)) {
+        _state = IntakeDownState::INTAKING;
+      } else {
+        _state = IntakeDownState::IDLE;
+      }
+    } else { 
+      _state = IntakeDownState::STOWED;
+    }
+
+    
   }
 
  private:
