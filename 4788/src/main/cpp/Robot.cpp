@@ -204,6 +204,8 @@ void Robot::TeleopPeriodic() {
 
   std::cout << "Flywheel encoder: " << robotMap.turret.flywheelEncoder.GetEncoderAngularVelocity() << std::endl;
   std::cout << "Angle encoder" << robotMap.turret.angleEncoder.GetEncoderRotations() << std::endl;
+
+  
 }
 
 

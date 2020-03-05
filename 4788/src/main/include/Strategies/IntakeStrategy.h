@@ -1,61 +1,61 @@
+#pragma once
+
 #include "controllers/Controller.h"
 #include "strategy/Strategy.h"
-#include "BIntake2.h"
+#include "BeltIntake2.h" // Meant to be intake2.h
+
+using ButtonState = wml::controllers::Controller;
 
 class IntakeManualStrategy : wml::Strategy {
  public:
   IntakeManualStrategy(
     const Intake &intake,
-    const wml::actuators::DoubleSolenoid &IntakeDown,
-    const wml::controllers::SmartControllerGroup &controllers,
-  ) : wml::Strategy("Manual"), _beltIntake(intake), _controllers(controllers) {
+    const wml::controllers::SmartControllerGroup &controllers
+  ) : wml::Strategy("Manual"), _intake(intake), _controllers(controllers) {
     Requires(&intake);
     SetCanBeInterrupted(true);
     SetCanBeReused(true);
   }
 
   void OnUpdate(double dt) override {
-    actuators::BinaryActuatorState pistonState{actuators::BinaryActuatorState::kForward};
-    double power = 0;
+    double intake_power;
+    if (ControlMap::doJoyDeadzone(_controllers.Get(ControlMap::Intake)))
+      intake_power = _controllers.Get(ControlMap::Intake);
+    else
+      intake_power = ControlMap::doJoyDeadzone(_controllers.Get(ControlMap::Outake));
 
-    switch (_state) {
-      case IntakeDownState::DEPLOYED:
-        pistonState = actuators::BinaryActuatorState::kForward;
-      break;
-
-      case IntakeDownState::STOWED:
-        pistonState = actuators::BinaryActuatorState::kReverse;
-      break;
-
-      case IntakeDownState::INTAKING:
-        power = 0.7;
-      break;
-
-      case IntakeDownState::EJECTING:
-        power = -0.7;
-      break;
-
-      case IntakeDownState::IDLE:
-        power = 0;
-      break;
+    // Detect If climber is deployed
+    if (_controllers.Get(ControlMap::ClimberToggle, ButtonState::ONRISE)) {
+      if (ClimberToggled)
+        ClimberToggled = false;
+      else
+        ClimberToggled = true;
     }
 
-    if (_contGroup.Get(ControlMap::DownIntake, Controller::ONRISE)) {
-      _state = IntakeDownState::DEPLOYED
-      if (_contGroup.Get(ControlMap::Intake)) {
-        _state = IntakeDownState::INTAKING;
+    // Detect if intake is deployed
+    if (_controllers.Get(ControlMap::DownIntake, ButtonState::ONRISE)) {
+      if (IntakeToggled)
+        IntakeToggled = false;
+      else 
+        IntakeToggled = true;
+    }
+
+    // Intake controll, Override if Climber is deployed
+    if (!ClimberToggled) {
+      if (IntakeToggled) {
+        _intake.SetIntake(IntakeState::INTAKING, intake_power);
       } else {
-        _state = IntakeDownState::IDLE;
+        _intake.SetIntake(IntakeState::STOWED, intake_power);
       }
-    } else { 
-      _state = IntakeDownState::STOWED;
+    } else {
+      _intake.SetIntake(IntakeState::DEPLOYED);
     }
-
-    
   }
 
  private:
-  const BeltIntake &_beltIntake;
-  const wml::actuators::DoubleSolenoid &_IntakeDown;
+  const Intake &_intake;
   const wml::controllers::SmartControllerGroup &_controllers;
-}take.h
+
+  bool IntakeToggled = false;
+  bool ClimberToggled = false;
+};
