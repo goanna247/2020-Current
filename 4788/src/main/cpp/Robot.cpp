@@ -116,7 +116,6 @@ void Robot::TeleopInit() {
 // Teleop Loops
 void Robot::TeleopPeriodic() {}
 
-
 // Start of test
 void Robot::TestInit() {
   Schedule(std::make_shared<DrivetrainTest>(*drivetrain, wml::control::PIDGains{ "I am gains 2: Electric Boogaloo", 1, 0, 0 }));
