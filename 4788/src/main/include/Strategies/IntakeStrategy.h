@@ -2,7 +2,8 @@
 
 #include "controllers/Controller.h"
 #include "strategy/Strategy.h"
-#include "BeltIntake2.h" // Meant to be intake2.h
+//#include "BeltIntake2.h" // Meant to be intake2.h
+#include "Intake2.h"
 
 using ButtonState = wml::controllers::Controller;
 
