@@ -7,7 +7,7 @@ double CurrentTime;
 double lastTimestamp;
 double dt;
 
-StrategyBuilder builder;
+//StrategyBuilder builder;
 
 void Robot::RobotInit() {
 

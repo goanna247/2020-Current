@@ -40,48 +40,48 @@ class DrivetrainManual : public wml::Strategy {
 };
 
 // Class that Runs in Autonomous
-class DrivetrainAuto : public wml::Strategy {
-  public:
-    DrivetrainAuto(
-      wml::Drivetrain &drivetrain, 
-      wml::actuators::DoubleSolenoid &ChangeGears, 
-      wml::actuators::DoubleSolenoid &Shift2PTO, 
-      WayFinder &wayFinder,
-      WayFinder::Waypoint &waypoint
-      ) : _drivetrain(drivetrain),
-          _ChangeGears(ChangeGears),
-          _Shift2PTO(Shift2PTO),
-          _wayFinder(wayFinder),
-          _waypoint(waypoint) {
-        Requires(&drivetrain);
-        SetCanBeInterrupted(true);
-        SetCanBeReused(true);
-        _wayFinder.AutoConfig(ControlMap::MaxAutoDrivetrainSpeed, ControlMap::MaxAutoTurnSpeed);
-      }
+// class DrivetrainAuto : public wml::Strategy {
+//   public:
+//     DrivetrainAuto(
+//       wml::Drivetrain &drivetrain, 
+//       wml::actuators::DoubleSolenoid &ChangeGears, 
+//       wml::actuators::DoubleSolenoid &Shift2PTO, 
+//       WayFinder &wayFinder,
+//       WayFinder::Waypoint &waypoint
+//       ) : _drivetrain(drivetrain),
+//           _ChangeGears(ChangeGears),
+//           _Shift2PTO(Shift2PTO),
+//           _wayFinder(wayFinder),
+//           _waypoint(waypoint) {
+//         Requires(&drivetrain);
+//         SetCanBeInterrupted(true);
+//         SetCanBeReused(true);
+//         _wayFinder.AutoConfig(ControlMap::MaxAutoDrivetrainSpeed, ControlMap::MaxAutoTurnSpeed);
+//       }
 
 
-    void OnUpdate(double dt) override {
-      if (_wayFinder.GetWayPointComplete()) {
-        IsFinished();
-      } else {
-        _wayFinder.GotoWaypoint(_waypoint, dt);
-      }
-    }
+//     void OnUpdate(double dt) override {
+//       if (_wayFinder.GetWayPointComplete()) {
+//         IsFinished();
+//       } else {
+//         _wayFinder.GotoWaypoint(_waypoint, dt);
+//       }
+//     }
 
-  private:
-    wml::Drivetrain &_drivetrain;
-    WayFinder &_wayFinder;
-    WayFinder::Waypoint &_waypoint;
-    wml::actuators::DoubleSolenoid &_ChangeGears;
-    wml::actuators::DoubleSolenoid &_Shift2PTO;
-    double LeftPower = 0, RightPower = 0;
-    double currentSpeed;
+//   private:
+//     wml::Drivetrain &_drivetrain;
+//     WayFinder &_wayFinder;
+//     WayFinder::Waypoint &_waypoint;
+//     wml::actuators::DoubleSolenoid &_ChangeGears;
+//     wml::actuators::DoubleSolenoid &_Shift2PTO;
+//     double LeftPower = 0, RightPower = 0;
+//     double currentSpeed;
 
-    double DistanceInRotations;
-    double TurnPreviousError;
-    double TurnSum;
-    double CurrentHeading;
-};
+//     double DistanceInRotations;
+//     double TurnPreviousError;
+//     double TurnSum;
+//     double CurrentHeading;
+// };
 
 // Class that Runs in Test Mode
 class DrivetrainTest : public wml::Strategy {
