@@ -49,7 +49,7 @@ class DrivetrainManual : public wml::Strategy {
 //         _drivetrain(drivetrain),
 //         _robotMap(robotMap),
 //         _wayfinder(wayfinder
-){
+// ){
 //        Requires(&drivetrain);
 //        SetCanBeInterrupted(true);
 //        SetCanBeReused(true);

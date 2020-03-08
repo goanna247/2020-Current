@@ -35,7 +35,6 @@ class Turret : public wml::StrategySystem {
          wml::sensors::LimitSwitch &angleZeroSensor,
          PIDGains &RotationPID,
          PIDGains &AnglePID) :
-         /* TODO(CJ): Add your PIDGains here to construct the PIDScheduledControllers */
          _turretRotationGearbox(turretRotationGearbox),
          _turretAngleGearbox(turretAngleGearbox),
          _flywheelGearbox(flywheelGearbox),
@@ -78,7 +77,7 @@ class Turret : public wml::StrategySystem {
        break;
       
       case TurretRotationState::PID:
-        //voltage = RotationPID.Calculate(_turretRotationGearbox.encoder->GetEncoderRotations());
+        voltage = RotationPID.Calculate(_turretRotationGearbox.encoder->GetEncoderRotations(), dt, 0.0);
        break;
       
       case TurretRotationState::ZEROING:

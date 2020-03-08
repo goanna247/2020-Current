@@ -40,7 +40,7 @@ void Robot::RobotInit() {
   intake->SetDefault(std::make_shared<IntakeManualStrategy>(*intake, *climber, robotMap.contGroup));
   // magLoader->SetDefault(std::make_shared<MagLoaderManualStrategy>(*magLoader, robotMap.contGroup));
   climber->SetDefault(std::make_shared<ClimberManualStrategy>(*climber, robotMap.contGroup));
-  // turret->SetDefault(std::make_shared<TurretManualStrategy>(*turret, robotMap.contGroup));
+  turret->SetDefault(std::make_shared<TurretManualStrategy>(*turret, robotMap.contGroup));
 
   // Inverts one side of our drivetrain
   drivetrain->GetConfig().rightDrive.transmission->SetInverted(true);
@@ -80,9 +80,9 @@ void Robot::RobotPeriodic() {
 
   std::cout << "Rotation Sensor: " << robotMap.turret.LeftLimit.Get() << std::endl;
 
-  // //std::cout << "TurretAngle: " << robotMap.turret.turretAngle.encoder->GetEncoderRotations() << std::endl;
+  std::cout << "TurretAngle: " << robotMap.turret.turretAngle.encoder->GetEncoderRotations() << std::endl;
   std::cout << "TurretRotation: " << robotMap.turret.turretRotation.encoder->GetEncoderRotations() << std::endl;
-  // //std::cout << "TurretFlyWheel: " << robotMap.turret.turretFlyWheel.encoder->GetEncoderAngularVelocity() << std::endl;
+  std::cout << "TurretFlyWheel: " << robotMap.turret.turretFlyWheel.encoder->GetEncoderAngularVelocity() << std::endl;
 
   // std::cout << "Flywheel encoder: " << robotMap.turret.flywheelEncoder.GetEncoderAngularVelocity() << std::endl;
   // std::cout << "Angle encoder" << robotMap.turret.angleEncoder.GetEncoderRotations() << std::endl;
@@ -107,6 +107,7 @@ void Robot::AutonomousPeriodic() {
 void Robot::TeleopInit() { 
   Schedule(drivetrain->GetDefaultStrategy(), true);
   Schedule(intake->GetDefaultStrategy(), true);
+  Schedule(turret->GetDefaultStrategy(), true);
   // Schedule(magLoader->GetDefaultStrategy(), true);
   Schedule(climber->GetDefaultStrategy(), true);
 }

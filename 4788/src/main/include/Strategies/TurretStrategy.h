@@ -165,17 +165,17 @@ class TurretManualStrategy : public wml::Strategy {
       // Manual Control
       } else {
         // Turret Rotation Control
-        if (ControlMap::doJoyDeadzone(_controllers.Get(ControlMap::TurretManualRotate)))
+        if (ControlMap::doJoyDeadzone(_controllers.Get(ControlMap::TurretManualRotate)) > ControlMap::joyDeadzone)
           _turret.SetTurretRotation(TurretRotationState::MANUAL, turretRotation_power);
         else
           _turret.SetTurretRotation(TurretRotationState::IDLE, turretRotation_power);
         // Turet Angle Control
-        if (ControlMap::doJoyDeadzone(_controllers.Get(ControlMap::TurretManualAngle)))
+        if (ControlMap::doJoyDeadzone(_controllers.Get(ControlMap::TurretManualAngle)) > ControlMap::joyDeadzone)
           _turret.SetTurretAngle(TurretAngleState::MANUAL, turretAngle_power);
         else
           _turret.SetTurretAngle(TurretAngleState::IDLE, turretAngle_power);
         // Turet Flywheel Control
-        if (ControlMap::doJoyDeadzone(_controllers.Get(ControlMap::TurretFlyWheelSpinUp)))
+        if (ControlMap::doJoyDeadzone(_controllers.Get(ControlMap::TurretFlyWheelSpinUp)) > ControlMap::triggerDeadzone)
           _turret.SetTurretFlywheel(TurretFlywheelState::MANUAL, turretFlywheel_power);
         else 
           _turret.SetTurretFlywheel(TurretFlywheelState::IDLE, turretFlywheel_power);
