@@ -40,20 +40,21 @@ class DrivetrainManual : public wml::Strategy {
 };
 
 // Class that Runs in Autonomous
-//  class DrivetrainAuto : public wml::Strategy {
-//    public:
-//      DrivetrainAuto(
+  // class DrivetrainAuto : public wml::Strategy {
+  //   public:
+  //     DrivetrainAuto(
 //        wml::Drivetrain &drivetrain,
 //        RobotMap &robotMap,
 //        WayFinder &wayfinder):
 //         _drivetrain(drivetrain),
 //         _robotMap(robotMap),
-//         _wayfinder(wayfinder){
+//         _wayfinder(wayfinder
+){
 //        Requires(&drivetrain);
 //        SetCanBeInterrupted(true);
 //        SetCanBeReused(true);
 //        _wayfinder.AutoConfig(ControlMap::MaxAutoDrivetrainSpeed, ControlMap::MaxAutoTurnSpeed);
-//       }
+      //  }
 
 
 //     // void OnUpdate(double dt) override {
@@ -67,7 +68,7 @@ class DrivetrainManual : public wml::Strategy {
 //       //auto code 
 //    }
 
-//    private:
+  //  private:
 //     wml::Drivetrain &_drivetrain;
 //     RobotMap &_robotMap;
 //     WayFinder &_wayfinder;
@@ -78,7 +79,23 @@ class DrivetrainManual : public wml::Strategy {
 //     double TurnPreviousError;
 //     double TurnSum;
 //     double CurrentHeading;
-//  };
+ // };
+
+  // class DriveTrainAuto : public wml::Strategy {
+  //   public:
+  //     DriveTrainAuto(
+  //       wml::Drivetrain &drivetrain,
+  //       WayFinder &wayFinder,
+  //       RobotMap &robotMap):
+  //       _drivetrain(drivetrain),
+  //       _wayFinder()
+  //       {
+
+  //     }
+
+  //   private:
+
+  // };
 
 // Class that Runs in Test Mode
 class DrivetrainTest : public wml::Strategy {
