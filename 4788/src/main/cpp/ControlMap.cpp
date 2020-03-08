@@ -154,18 +154,12 @@ const double ControlMap::MaxAutoDrivetrainSpeed = 0.4;
 const double ControlMap::MaxAutoTurnSpeed = 0.25;
 
 
-// LeftDrive
+// DrivePID
 const double ControlMap::DriveKp = 0.02;
 const double ControlMap::DriveKi = 0.01;
 const double ControlMap::DriveKd = 0;
 
 // Turret PID
-
-// const PIDGains ControlMap::TurretAnglePID{"TurretAngledPID", 0.0, 0.0, 0.0};
-// const PIDGains ControlMap::TurretRotationPID{"TurretRotationPID", 0.0, 0.0, 0.0};
-
-// const PIDGain ControlMap::TurretRotationPID = 0.0 , 0.0, 0.0;
-// const PIDGain ControlMap::TurretAnglePID = 0.0, 0.0, 0.0;
 
 // -------------Defined Buttons-------------------
 

@@ -133,11 +133,9 @@ struct RobotMap {
     wml::actuators::MotorVoltageController flywheelMotors = wml::actuators::MotorVoltageController::Group(TurretFlyWheel, TurretFlyWheel2);
     wml::Gearbox turretFlyWheel{ &flywheelMotors, &flywheelEncoder, 0 };
 
-    //PID 
-    PIDGains RotationPID{"TurretRotationPID", 0.0, 0.0, 0.0};
-    PIDGains AnglePID{"TurretAnglePID", 0.0, 0.0, 0.0};
-  
-
+    // Default PID Gains for turret
+    PIDGains RotationPID{"TurretRotationPID", 0.05, 0.0, 0.001};
+    PIDGains AnglePID{"TurretAnglePID", 15.0, 5.0, 0.0};
   };
   Turret turret;
 
