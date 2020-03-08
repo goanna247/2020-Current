@@ -40,43 +40,45 @@ class DrivetrainManual : public wml::Strategy {
 };
 
 // Class that Runs in Autonomous
- class DrivetrainAuto : public wml::Strategy {
-   public:
-     DrivetrainAuto(
-       wml::Drivetrain &drivetrain,
-       RobotMap &robotMap,
-       WayFinder &wayfinder):
-        _drivetrain(drivetrain),
-        _robotMap(robotMap),
-        _wayfinder(wayfinder){
-       Requires(&drivetrain);
-       SetCanBeInterrupted(true);
-       SetCanBeReused(true);
-       _wayfinder.AutoConfig(ControlMap::MaxAutoDrivetrainSpeed, ControlMap::MaxAutoTurnSpeed);
-      }
+//  class DrivetrainAuto : public wml::Strategy {
+//    public:
+//      DrivetrainAuto(
+//        wml::Drivetrain &drivetrain,
+//        RobotMap &robotMap,
+//        WayFinder &wayfinder):
+//         _drivetrain(drivetrain),
+//         _robotMap(robotMap),
+//         _wayfinder(wayfinder){
+//        Requires(&drivetrain);
+//        SetCanBeInterrupted(true);
+//        SetCanBeReused(true);
+//        _wayfinder.AutoConfig(ControlMap::MaxAutoDrivetrainSpeed, ControlMap::MaxAutoTurnSpeed);
+//       }
 
-    void OnUpdate(double dt) override {
-      // if (_wayFinder.GetWayPointComplete()) {
-      //   IsFinished();
-      // } else {
-      //   _wayFinder.GotoWaypoint(1, 1, 0, 1, 1, 0, false, dt);
-      // }
 
-      //auto code 
-   }
+//     // void OnUpdate(double dt) override {
+//     //   if (_wayFinder.GetWayPointComplete()) {
+//     //     IsFinished();
+//     //   } else {
+//     //     // _wayFinder.GotoWaypoint(1, 1, 0, 1, 1, 0, false, dt);
+//     //   }
+//     // }
 
-   private:
-    wml::Drivetrain &_drivetrain;
-    RobotMap &_robotMap;
-    WayFinder &_wayfinder;
-    double LeftPower = 0, RightPower = 0;
-    double currentSpeed;
+//       //auto code 
+//    }
 
-    double DistanceInRotations;
-    double TurnPreviousError;
-    double TurnSum;
-    double CurrentHeading;
- };
+//    private:
+//     wml::Drivetrain &_drivetrain;
+//     RobotMap &_robotMap;
+//     WayFinder &_wayfinder;
+//     double LeftPower = 0, RightPower = 0;
+//     double currentSpeed;
+
+//     double DistanceInRotations;
+//     double TurnPreviousError;
+//     double TurnSum;
+//     double CurrentHeading;
+//  };
 
 // Class that Runs in Test Mode
 class DrivetrainTest : public wml::Strategy {

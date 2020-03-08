@@ -36,10 +36,10 @@
 #include "ControlMap.h"
 #include "RobotMap.h"
 #include "DriveSystem.h"
-#include "Turret2.h"
-#include "Climber2.h"
-#include "Intake2.h"
-#include "MagLoader2.h"
+#include "Turret.h"
+#include "Climber.h"
+#include "Intake.h"
+#include "MagLoader.h"
 
 // Strategy Files
 #include "Strategies/ClimberStrategy.h"
@@ -51,7 +51,7 @@
 
 
 // Strat
-#include "Intake2.h"
+#include "Intake.h"
 #include "Strategies/IntakeStrategy.h" 
 // #include "Turret2.h"
 // #include "Strategies/TurretStrategy.h"
@@ -82,7 +82,7 @@ class Robot : public frc::TimedRobot, protected wml::StrategyController, protect
     Climber *climber;
 
     // Auto only
-    //AutoController *autoController;
+    // AutoController *autoController;
     WayFinder *wayFinder;
 
     // nt

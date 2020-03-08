@@ -2,7 +2,7 @@
 
 #include "controllers/Controllers.h"
 #include "strategy/Strategy.h"
-#include "Turret2.h" // meant to be turret2.h
+#include "Turret.h"
 
 using ButtonState = wml::controllers::Controller;
 
@@ -24,22 +24,6 @@ class TurretManualStrategy : public wml::Strategy {
     imageWidth = _table->GetNumber("ImageWidth", 0); 
   }
   
-
-  // Zero turret
-  void ZeroTurret() {
-    turretTime.Start();
-    if (turretTime.Get() < ControlMap::TurretZeroTimeoutSeconds) {
-       if (_turret._rotZeroSensor.Get()) {
-        _turret.SetTurretRotation(TurretRotationState::ZEROING, 0.12);
-      } else {
-        _turret._turretRotationGearbox.encoder->ZeroEncoder();
-        TurretZeroed = true;
-        turretTime.Stop();
-        turretTime.Reset();
-      }
-    }
-  }
-
   // Schedule Gains
   double ScheduleGains(double dt) {
     if (abs(targetX) < (abs(imageWidth)/8)) {
@@ -207,15 +191,29 @@ class TurretManualStrategy : public wml::Strategy {
     ContFlywheelFeedback();
 
     // Detect If turret has been zeroed
-    if (!TurretZeroed) {
-      ZeroTurret();
+    if (!_turret.TurretZeroed) {
+      _turret.SetTurretRotation(TurretRotationState::ZEROING, 0);
+    }
+
+    if (!_turret.AngleZeroed) {
+      _turret.SetTurretAngle(TurretAngleState::ZEROING, 0);
     }
 
 
     // Safe zone limit
-    if (TurretZeroed) 
-      if (_turret._turretRotationGearbox.encoder->GetEncoderRotations() < TurretRotMin || _turret._turretRotationGearbox.encoder->GetEncoderRotations() > TurretRotMax )
-        _turret.SetTurretRotation(TurretRotationState::IDLE, turretAngle_power); 
+    if (_turret.TurretZeroed && _turret.AngleZeroed)  {
+      if (_turret._turretRotationGearbox.encoder->GetEncoderRotations() <= TurretRotMin) {
+        _turret.SetTurretRotation(TurretRotationState::MANUAL, -0.12); 
+      } else if (_turret._turretRotationGearbox.encoder->GetEncoderRotations() >= TurretRotMax) {
+        _turret.SetTurretRotation(TurretRotationState::MANUAL, 0.12); 
+      }
+
+      if (_turret._turretAngleGearbox.encoder->GetEncoderRotations() <= TurretAngleMin) {
+        _turret.SetTurretAngle(TurretAngleState::MANUAL, 0.2);
+      } else if ( _turret._turretAngleGearbox.encoder->GetEncoderRotations() >= TurretAngleMax) {
+        _turret.SetTurretAngle(TurretAngleState::MANUAL, -0.2);
+      }
+    }
   }
 
 
@@ -281,7 +279,8 @@ class TurretManualStrategy : public wml::Strategy {
   // Safety Vals
   double TurretRotMin = -30;
   double TurretRotMax = 60;
-  bool TurretZeroed = false;
+  double TurretAngleMin = 0;
+  double TurretAngleMax = 0.2;
   
 
   bool ClimberToggled = false;

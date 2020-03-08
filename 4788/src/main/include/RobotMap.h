@@ -52,6 +52,7 @@
 // Local Files
 #include "ControlMap.h"
 #include "wayfinder.h"
+#include "PIDScheduledController.h"
 
 
 struct RobotMap {
@@ -131,8 +132,11 @@ struct RobotMap {
     wml::TalonSrx TurretFlyWheel2{ ControlMap::TurretFlyWheelPort2 };
     wml::actuators::MotorVoltageController flywheelMotors = wml::actuators::MotorVoltageController::Group(TurretFlyWheel, TurretFlyWheel2);
     wml::Gearbox turretFlyWheel{ &flywheelMotors, &flywheelEncoder, 0 };
-    
 
+    //PID 
+    PIDGains RotationPID{"TurretRotationPID", 0.0, 0.0, 0.0};
+    PIDGains AnglePID{"TurretAnglePID", 0.0, 0.0, 0.0};
+  
 
   };
   Turret turret;

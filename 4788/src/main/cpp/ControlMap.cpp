@@ -1,4 +1,5 @@
 #include "ControlMap.h"
+#include "PIDScheduledController.h"
 
 using hand = frc::XboxController::JoystickHand; // Only for FRC controllers
 
@@ -72,8 +73,8 @@ const bool ControlMap::TuneAnglePID = true;
 
 const int ControlMap::TurretLeftLimitPort = 0;
 const int ControlMap::TurretRightLimitPort = 99;
-const int ControlMap::TurretAngleDownLimitPort = 99;
-const bool ControlMap::TurretLeftLimitInvert = false;
+const int ControlMap::TurretAngleDownLimitPort = 5;
+const bool ControlMap::TurretLeftLimitInvert = true;
 const bool ControlMap::TurretRightLimitInvert = false;
 const bool ControlMap::TurretAngleDownLimitInvert = false;
 
@@ -158,6 +159,13 @@ const double ControlMap::DriveKp = 0.02;
 const double ControlMap::DriveKi = 0.01;
 const double ControlMap::DriveKd = 0;
 
+// Turret PID
+
+// const PIDGains ControlMap::TurretAnglePID{"TurretAngledPID", 0.0, 0.0, 0.0};
+// const PIDGains ControlMap::TurretRotationPID{"TurretRotationPID", 0.0, 0.0, 0.0};
+
+// const PIDGain ControlMap::TurretRotationPID = 0.0 , 0.0, 0.0;
+// const PIDGain ControlMap::TurretAnglePID = 0.0, 0.0, 0.0;
 
 // -------------Defined Buttons-------------------
 
