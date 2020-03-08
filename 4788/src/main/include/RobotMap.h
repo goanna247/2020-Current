@@ -199,7 +199,7 @@ struct RobotMap {
     */ 
 
     // Selection
-    int AutoSelecter = 1;
+    int AutoSelecter = 2;
 
     // Public booleans for subsystems
     bool StartDoComplete = true;

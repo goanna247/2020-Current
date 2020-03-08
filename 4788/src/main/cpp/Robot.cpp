@@ -28,6 +28,7 @@ void Robot::RobotInit() {
   magLoader = new MagLoader(robotMap.magLoader.magLoaderMotor, robotMap.magLoader.StartMagSensor, robotMap.magLoader.IndexSensor, robotMap.magLoader.StopSensor);
   climber = new Climber(robotMap.climber.ClimberElevatorLeft, robotMap.climber.ClimberElevatorRight, robotMap.climber.ClimberActuator);
   turret = new Turret(robotMap.turret.turretRotation, robotMap.turret.turretAngle, robotMap.turret.turretFlyWheel, robotMap.turret.LeftLimit, robotMap.turret.AngleDownLimit, robotMap.turret.RotationPID, robotMap.turret.AnglePID);
+  autoController = new AutoController(*turret, *intake, *magLoader, *drivetrain, *wayFinder, robotMap);
 
   // Zero All Encoders
   robotMap.driveSystem.drivetrain.GetConfig().leftDrive.encoder->ZeroEncoder();
@@ -38,9 +39,9 @@ void Robot::RobotInit() {
   drivetrain->StartLoop(100);
 
   intake->SetDefault(std::make_shared<IntakeManualStrategy>(*intake, *climber, robotMap.contGroup));
-  // magLoader->SetDefault(std::make_shared<MagLoaderManualStrategy>(*magLoader, robotMap.contGroup));
+  magLoader->SetDefault(std::make_shared<MagLoaderManualStrategy>(*magLoader, robotMap.contGroup));
   climber->SetDefault(std::make_shared<ClimberManualStrategy>(*climber, robotMap.contGroup));
-  // turret->SetDefault(std::make_shared<TurretManualStrategy>(*turret, robotMap.contGroup));
+  turret->SetDefault(std::make_shared<TurretManualStrategy>(*turret, robotMap.contGroup));
 
   // Inverts one side of our drivetrain
   drivetrain->GetConfig().rightDrive.transmission->SetInverted(true);
@@ -76,6 +77,8 @@ void Robot::RobotPeriodic() {
   magLoader->Update(dt);
   climber->Update(dt);
   turret->Update(dt);
+  autoController->Update(dt);
+
   NTProvider::Update();
 
   std::cout << "Rotation Sensor: " << robotMap.turret.LeftLimit.Get() << std::endl;
@@ -96,19 +99,22 @@ void Robot::DisabledInit() {
 
 // Code called once when auto starts
 void Robot::AutonomousInit() {
+
 }
 
 // Auto loops
 void Robot::AutonomousPeriodic() {
-
+ 
 }
 
 // Start of teleop
 void Robot::TeleopInit() { 
   Schedule(drivetrain->GetDefaultStrategy(), true);
   Schedule(intake->GetDefaultStrategy(), true);
-  // Schedule(magLoader->GetDefaultStrategy(), true);
+  //Schedule(magLoader->GetDefaultStrategy(), true);
   Schedule(climber->GetDefaultStrategy(), true);
+  Schedule(turret->GetDefaultStrategy(), true);
+
 }
 
 // Teleop Loops

@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "PIDScheduledController.h"
+#include "wayfinder.h"
 
 #include "controllers/Controllers.h"
 
@@ -132,6 +133,29 @@ struct ControlMap {
 
   // Drive PID
   static const double DriveKp, DriveKi, DriveKd;
+
+  //waypoints 
+  static const WayFinder::Waypoint way8point1;
+  static const WayFinder::Waypoint way8point2;
+  static const WayFinder::Waypoint way8point3;
+  static const WayFinder::Waypoint way8point4;
+
+  static const WayFinder::Waypoint way6point1;
+  static const WayFinder::Waypoint way6point2;
+  static const WayFinder::Waypoint way6point3;
+
+  static const WayFinder::Waypoint Lway3point1;
+
+
+  static const WayFinder::Waypoint Mway3point1;
+  static const WayFinder::Waypoint Mway3point2;
+  static const WayFinder::Waypoint Mway3point3;
+
+  static const WayFinder::Waypoint Rway3point1;
+  static const WayFinder::Waypoint Rway3point2;
+  static const WayFinder::Waypoint Rway3point3;
+
+
 
   //Turret PID
   // static const PIDGains TurretRotationPID, TurretAnglePID;

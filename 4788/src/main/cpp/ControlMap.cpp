@@ -159,6 +159,33 @@ const double ControlMap::DriveKp = 0.02;
 const double ControlMap::DriveKi = 0.01;
 const double ControlMap::DriveKd = 0;
 
+//waypoint
+
+//8 ball 
+const WayFinder::Waypoint ControlMap::way8point1{3.2, -2.4, -30, 5.4, -0.7, 30, false};
+const WayFinder::Waypoint ControlMap::way8point2{5.4, -0.7, 0, 9, -0.7, 0, false};
+const WayFinder::Waypoint ControlMap::way8point3{9, -0.7, 0, 8, -0.7, -21, true};
+const WayFinder::Waypoint ControlMap::way8point4{8, -0.7, 0, 4.2, -2.4, 21, false};
+
+//6 ball 
+const WayFinder::Waypoint ControlMap::way6point1{3.2, -2.4, -35, 5.4, -0.7, 35, false};
+const WayFinder::Waypoint ControlMap::way6point2{5.4, -0.7, 0, 8, -0.7, -21, false};
+const WayFinder::Waypoint ControlMap::way6point3{8, -0.7, 0, 4.2, -2.4, 21, true};
+
+//3 ball left 
+const WayFinder::Waypoint ControlMap::Lway3point1{3.2 , -2.4, 0, 4.1, -2.3, -180, true};
+
+//3 ball middle 
+const WayFinder::Waypoint ControlMap::Mway3point1{3.2, -4, 0, 4.3, -4, -90, false};
+const WayFinder::Waypoint ControlMap::Mway3point2{4.3, -4, 0, 4.3, -2.3, -90, false};
+const WayFinder::Waypoint ControlMap::Mway3point3{4.3, -2.3, 0, 3, -2.3, 0, false};
+
+//3 ball right 
+const WayFinder::Waypoint ControlMap::Rway3point1{3.2, -6, 0, 4.3, -6 , -90, false,};
+const WayFinder::Waypoint ControlMap::Rway3point2{4.3, -6, 0, 4.3, -2.4, -90, false};
+const WayFinder::Waypoint ControlMap::Rway3point3{4.3, -2.4, 0, 3.4, -2.4, 0, false};
+
+
 // Turret PID
 
 // const PIDGains ControlMap::TurretAnglePID{"TurretAngledPID", 0.0, 0.0, 0.0};

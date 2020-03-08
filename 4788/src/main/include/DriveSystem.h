@@ -49,7 +49,7 @@ class DrivetrainManual : public wml::Strategy {
 //         _drivetrain(drivetrain),
 //         _robotMap(robotMap),
 //         _wayfinder(wayfinder
-){
+// ){
 //        Requires(&drivetrain);
 //        SetCanBeInterrupted(true);
 //        SetCanBeReused(true);
@@ -81,21 +81,44 @@ class DrivetrainManual : public wml::Strategy {
 //     double CurrentHeading;
  // };
 
-  // class DriveTrainAuto : public wml::Strategy {
-  //   public:
-  //     DriveTrainAuto(
-  //       wml::Drivetrain &drivetrain,
-  //       WayFinder &wayFinder,
-  //       RobotMap &robotMap):
-  //       _drivetrain(drivetrain),
-  //       _wayFinder()
-  //       {
+  class DrivetrainAuto : public wml::Strategy {
+    public:
+      DrivetrainAuto(
+        wml::Drivetrain &drivetrain,
+        WayFinder &wayfinder,
+        RobotMap &robotMap,
+        WayFinder::Waypoint waypoint) :
+        _drivetrain(drivetrain),
+        _wayfinder(wayfinder),
+        _robotMap(robotMap), 
+        _waypoint(waypoint) {
+        Requires(&drivetrain);
+        SetCanBeInterrupted(true);
+        SetCanBeReused(true);
+        _wayfinder.AutoConfig(ControlMap::MaxAutoDrivetrainSpeed, ControlMap::MaxAutoTurnSpeed);
+      }
 
-  //     }
+      void OnUpdate(double dt) override {
+        if (!_wayfinder.GetWayPointComplete()) {
+          _wayfinder.GotoWaypoint( _waypoint, dt);
+        } else {
+          IsFinished();
+        }
+      }
 
-  //   private:
+    private:
+      wml::Drivetrain &_drivetrain;
+      RobotMap &_robotMap;
+      WayFinder &_wayfinder;
+      WayFinder::Waypoint _waypoint;
+      double LeftPower = 0, RightPower = 0;
+      double currentSpeed;
 
-  // };
+      double DistanceInRotations;
+      double TurnPreviousError;
+      double TurnSum;
+      double CurrentHeading;
+  };
 
 // Class that Runs in Test Mode
 class DrivetrainTest : public wml::Strategy {
@@ -107,6 +130,7 @@ class DrivetrainTest : public wml::Strategy {
   private:
     wml::Drivetrain &_drivetrain;
     wml::control::PIDController _pid;
+
     double leftSpeed = 0, rightSpeed = 0;
     int testSelect = 1;
 };
