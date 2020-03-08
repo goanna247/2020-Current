@@ -30,17 +30,20 @@ class ClimberManualStrategy : public wml::Strategy {
         ClimberToggled = true;
     }
 
-    // Detect if climber is toggled
+    //Detect if climber is toggled
     if (ClimberToggled) {
-      if (climbTime.Get() > 1) {
-        _climber.SetClimber(ClimberState::MANUAL, leftClimber_power, rightClimber_power);
-        _climber.SetClimberActuator(ClimberActuatorState::DOWN);
-        climbTime.Reset();
-        climbTime.Stop();
-      } else {
-        _climber.SetClimber(ClimberState::IDLE, leftClimber_power, rightClimber_power);
-        _climber.SetClimberActuator(ClimberActuatorState::UP);
-      }
+      _climber.SetClimberActuator(ClimberActuatorState::UP);
+      // if (climbTime.Get() > 1) {
+      //   _climber.SetClimber(ClimberState::MANUAL, leftClimber_power, rightClimber_power);
+      //   _climber.SetClimberActuator(ClimberActuatorState::DOWN);
+      //   climbTime.Reset();
+      //   climbTime.Stop();
+      // } else {
+      //   _climber.SetClimber(ClimberState::IDLE, leftClimber_power, rightClimber_power);
+      //   _climber.SetClimberActuator(ClimberActuatorState::UP);
+      // }
+    } else {
+      _climber.SetClimberActuator(ClimberActuatorState::DOWN);
     }
   }
  private:

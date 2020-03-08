@@ -7,7 +7,8 @@
 #include "IntakeStrategy.h"
 #include "ClimberStrategy.h"
 
-class ManualStrategyController : wml::StrategyBuilder {
+class ManualStrategyController {
+//wml::StrategyBuilder 
   public:
   ManualStrategyController(
     const TurretManualStrategy &turret,
@@ -39,7 +40,7 @@ class ManualStrategyController : wml::StrategyBuilder {
 };
 
 
-class AutoStrategyController : wml::StrategyBuilder {
+// class AutoStrategyController : wml::StrategyBuilder {
 
-}
+// }
 
