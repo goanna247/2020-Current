@@ -1,191 +1,237 @@
 #pragma once
 
-#include "controllers/Controllers.h"
-#include "RobotMap.h"
-
 #include "strategy/StrategySystem.h"
+#include "RobotMap.h"
+#include "PIDScheduledController.h"
 
-enum class TurretState {
-	AUTO_AIM,
-	MANUAL_AIM
+using actState = wml::actuators::BinaryActuatorState;
+
+enum class TurretRotationState {
+  IDLE,
+  ZEROING,
+  MANUAL,
+  PID
+};
+
+enum class TurretAngleState {
+  IDLE,
+  ZEROING,
+  MANUAL,
+  PID
+};
+
+enum class TurretFlywheelState {
+  IDLE,
+  MANUAL,
+  AUTO
 };
 
 class Turret : public wml::StrategySystem {
-	public:
-		Turret(wml::Gearbox &RotationalAxis, 
-					 wml::Gearbox &VerticalAxis, 
-					 wml::Gearbox &FlyWheel, 
-					 wml::sensors::BinarySensor &LeftLimit,  
-					 wml::sensors::BinarySensor &AngleDownLimit, 
-					 wml::controllers::SmartControllerGroup &contGroup, 
-					 std::shared_ptr<nt::NetworkTable> &visionTable,
-					 std::shared_ptr<nt::NetworkTable> &rotationTable, 
-					 bool &FlyWheelToggle,
-					 bool &TurretToggle, 
-					 int &autoSelector, 
-					 bool &StartDoComplete,
-					 bool &strt,
-					 bool &p1,
-					 bool &p2,
-					 bool &p3,
-					 bool &end);
+ public:
+  Turret(wml::Gearbox &turretRotationGearbox,
+         wml::Gearbox &turretAngleGearbox,
+         wml::Gearbox &flywheelGearbox,
+         wml::sensors::LimitSwitch &rotZeroSensor,
+         wml::sensors::LimitSwitch &angleZeroSensor,
+         PIDGains &RotationPID,
+         PIDGains &AnglePID) :
+         _turretRotationGearbox(turretRotationGearbox),
+         _turretAngleGearbox(turretAngleGearbox),
+         _flywheelGearbox(flywheelGearbox),
+         _rotZeroSensor(rotZeroSensor),
+         _angleZeroSensor(angleZeroSensor),
+         RotationPID{RotationPID, 0},
+         AnglePID{AnglePID, 0} {
+           auto inst = nt::NetworkTableInstance::GetDefault();
+          _visionTable = inst.GetTable("VisionTracking");
+          _table = _visionTable->GetSubTable("Target");
 
-		void _Update(double dt);
-		void TeleopOnUpdate(double dt);
-		void AutoOnUpdate(double dt);
-		void TestOnUpdate(double dt);
+          imageHeight = _table->GetNumber("ImageHeight", 0); 
+          imageWidth = _table->GetNumber("ImageWidth", 0); 
+         } 
 
-		void TuneTurretPID();
-		void TuneAnglePID();
+  // Schedule Gains
+  double ScheduleGains(double dt) {
+    if (abs(targetX) < (abs(imageWidth)/8)) {
+      RotationPID.SetGains(RotationPID3);
+      AnglePID.SetGains(AnglePID3);
+      dt = 0.5; // Make accumulator awesome baby
+    } else if (abs(targetX) < (abs(imageWidth)/6)) {
+      RotationPID.SetGains(RotationPID2);
+      AnglePID.SetGains(AnglePID2);
+    } else {
+      RotationPID.SetGains(RotationPID1);
+      AnglePID.SetGains(AnglePID1);
+    }
+    return dt;
+  }
 
-		double XAutoAimCalc(double dt, double input);
-		double YAutoAimCalc(double dt, double TargetInput);
+  double CalculateAngleSetpoint(double ty) {
+    // Setpoint 1
+		double Yvalue1 = 85;
+		double ECvalue1 = 0.09;
+		// Setpoint 2
+		double Yvalue2 = 225;
+		double ECvalue2 = 0.121;
 
-		void InitializeSetPoints();
+	  // Calculate goal
+    double EC = ECvalue2 - ECvalue1;
+    double YV = Yvalue2 - Yvalue1;
+    double Gradient = (EC/YV);
 
-		void ZeroTurret();
-		std::shared_ptr<nt::NetworkTable> table;
-		std::shared_ptr<nt::NetworkTable> table_2;
+    double Intercept = (ECvalue1 - (Gradient * Yvalue1));
+    double Goal = ((Gradient * ty) + Intercept);
 
+    return Goal;
+  }
+  
+  // Set the Turrets Subsystems
+  void SetTurretRotation(const TurretRotationState st, double setpoint) {
+    // Only reset on a state change (updates to setpoint are continuous for the turret)
+    if (st == TurretRotationState::PID)
+      RotationPID.SetSetpoint(setpoint, _turretRotationState != TurretRotationState::PID);
+    _turretRotationState = st;
+    _rotationSetpoint = setpoint;
+  }
 
-	private:
-		// Gearboxes
-		wml::Gearbox &_RotationalAxis;
-		wml::Gearbox &_VerticalAxis;
-		wml::Gearbox &_FlyWheel;
+  void SetTurretAngle(const TurretAngleState st, double setpoint) {
+    // Only reset on a state change (updates to setpoint are continuous for the turret)
+    if (st == TurretAngleState::PID)
+      AnglePID.SetSetpoint(setpoint, _turretAngleState != TurretAngleState::PID);
+    _turretAngleState = st;
+    _angleSetpoint = setpoint;
+  }
 
-		// Rotation Sensors
-		wml::sensors::BinarySensor &_LeftLimit;
-		wml::sensors::BinarySensor &_AngleDownLimit;
+  void SetTurretFlywheel(const TurretFlywheelState st, double setpoint) {
+    _turretFlywheelState = st;
+    _flywheelSetpoint = setpoint;
+  }
 
-		wml::controllers::SmartControllerGroup &_contGroup;
-		std::shared_ptr<nt::NetworkTable> &_visionTable;
-		std::shared_ptr<nt::NetworkTable> &_rotationTable;
+  void UpdateTurretRotation(double dt) {
+    double voltage = 0;
+    switch (_turretRotationState) {
+      case TurretRotationState::IDLE:
+        voltage = 0;
+       break;
 
-		bool &_FlyWheelToggle;
-		bool &_TurretToggle;
-		int &_autoSelector;
-		bool &_StartDoComplete;
-		bool &_strt;
-		bool &_p1;
-		bool &_p2;
-		bool &_p3;
-		bool &_end;
-
-		TurretState _current_state{ TurretState::MANUAL_AIM };
-
-		// Timeout Timer
-		frc::Timer ZeroTimer;
-
-		//nt
-		nt::NetworkTableEntry RevFlywheelEntry;
-
-		bool TuningTurret = false;
-
-		// Backend Functions
-		double SetPointSelection(double TargetInput);
-		void TurretZeroLeft(double Time);
-		void TurretZeroRight(double Time);
-		void TurretZeroAngle(double Time);
-
-		void TurretManualState(double dt);
-		void TurretAutoState(double dt);
-
-		void ContFlywheelFeedback();
-		void FlyWheelAutoSpinup();
-		void FlyWheelManualSpinup();
-		void PIDTuner();
-
-		void AutoAimToFire(double dt);
-		void TurretSearchForTarget();
-		double TurretQuery(double Rgoal);
-		double ScheduleGains(double dt);
-
-		// PID Calculations X axis (Rotation R)
-		bool GainsSchedule2 = false;
-		// Schedule 1 (Get to location)
-		double RkP = 0.05; // 0.899
-		double RkI = 0; // 0.107
-		double RkD = 0.001; // 0.036
-		// Schedule 2 (Precise locate target)
-		double RkP2 = 0.07; // N/A
-		double RkI2 = 0.001; // N/A
-		double RkD2 = 0.001; // N/A
-		// Schedule 3 (Lock on target)
-		double RkP3 = 0.1; // N/A
-		double RkI3 = 0.003; // N/A
-		double RkD3 = 0.001; // N/A
-
-		// Pointed Gains I AM GAINS
-		double *kP;
-		double *kI;
-		double *kD;
-
-		double Rerror;
-
-		double Rsum = 0;
-		double RpreviousError = 0;
-		// double Rotgoal = 0;
-
-		// PID Calculation Y axis (Angle A)
-		double AngleSetPoint[480];
-		double AkP = 20;
-		double AkI = 0;
-		double AkD = 0;
-
-		double Aerror;
-
-		double Asum = 0;
-		double ApreviousError = 0;
-		double AGoal = 0;
+      case TurretRotationState::MANUAL:
+        voltage = 12 * _rotationSetpoint;
+       break;
+      
+      case TurretRotationState::PID:
+        voltage = -RotationPID.Calculate(_turretRotationGearbox.encoder->GetEncoderRotations(), dt, 0.0);
+        voltage *= ControlMap::MaxTurretSpeed;
+       break;
+      
+      case TurretRotationState::ZEROING:
+        if (!_rotZeroSensor.Get()) {
+          voltage = 12 * 0.12;
+        } else {
+          _turretRotationGearbox.encoder->ZeroEncoder();
+          TurretZeroed = true;
+          SetTurretRotation(TurretRotationState::IDLE, 0);
+        }
+       break;
+    }
+    _turretRotationGearbox.transmission->SetVoltage(voltage);
+  }
 
 
-		// Cam Values
-		double imageHeight = 0;
-		double imageWidth = 0;
-		double targetX = 0;
-		double targetY = 0;
+  void UpdateTurretAngle(double dt) {
+    double voltage = 0;
+    switch (_turretAngleState) {
+      case TurretAngleState::IDLE:
+        voltage = 0;
+       break;
 
-		double MinRotation = 0;
-		double MaxRotation = 0;
-		double MaxAngleRotations = 0;
-		double MotorTicks = 2048;
+      case TurretAngleState::MANUAL:
+        voltage = 12 * _angleSetpoint;
+       break;
 
-		// Test
-		bool turretTest = true;
+      case TurretAngleState::PID:
+        voltage = AnglePID.Calculate(_turretAngleGearbox.encoder->GetEncoderRotations(), dt, 0.0);
+        voltage *= ControlMap::MaxTurretAngularSpeed;
+       break;
 
-    bool leftLimitTest = true;
-    bool rightLimitTest = true;
-    bool leftEncoderTest = true;
-    bool rightEncoderTest = true;
+      case TurretAngleState::ZEROING:
+        if (!_angleZeroSensor.Get()) {
+          voltage = 12 * -0.2;
+        } else {
+          _turretAngleGearbox.encoder->ZeroEncoder();
+          AngleZeroed = true;
+          SetTurretAngle(TurretAngleState::IDLE, 0);
+        }
+       break;
+    }
+    _turretAngleGearbox.transmission->SetVoltage(voltage);
+  }
 
-		bool angleLimitTest = true;
-		bool angleEncoderTet = true;
+  void UpdateTurretFlywheel(double dt) {
+    double voltage = 0;
+    switch (_turretFlywheelState) {
+      case TurretFlywheelState::IDLE:
+        voltage = 0;
+       break;
 
-		bool FlywheelTest = true;
+      case TurretFlywheelState::MANUAL:
+        voltage = _flywheelSetpoint;
+       break;
 
-		// Power 
-		double RotationPower = 0;
-		double AngularPower = 0;
-		double FlyWheelPower = 0;
+      case TurretFlywheelState::AUTO:
+        voltage = _flywheelSetpoint;
+       break;
+    }
+    _flywheelGearbox.transmission->SetVoltage(voltage);
+  }
 
-		double Rotations2FOV;
+  void Update(double dt) {
+    targetX = _table->GetNumber("Target_X", 0);
+    targetY = _table->GetNumber("Target_Y", 0);
+    dt = ScheduleGains(dt);
+    UpdateTurretRotation(dt);
+    UpdateTurretAngle(dt);
+    UpdateTurretFlywheel(dt);
+  }
 
-		bool ReadyToFire = false;
+  // Gearboxes
+  wml::Gearbox &_turretRotationGearbox, &_turretAngleGearbox, &_flywheelGearbox;
 
-		//auto 
-		int AutoTurretSwitcher = 1; // I didnt really know what to call it
-		bool TurretStop; //tells the turret when it is finished
-		int TurretAutoSelection = 0; //tells the turret which case selection it's in
+  // Sensors
+  wml::sensors::LimitSwitch &_rotZeroSensor, &_angleZeroSensor;
 
-		int BallTime3Shoot = 1.5;
-		int BallTime5Shoot = 2.5;
-		int SpinUpTime = 1;
-		int autoAimTime = 2;
-		int Ball3Shoot = BallTime3Shoot + SpinUpTime + autoAimTime; //time to shoot 3 balls
-		int Ball5Shoot = BallTime5Shoot + SpinUpTime + autoAimTime; //shoots 5 balls 
+  bool TurretZeroed = false;
+  bool AngleZeroed = false;
+
+  // PID
+  PIDScheduledController RotationPID;
+  PIDScheduledController AnglePID;
+
+  double targetX;
+  double targetY;
+  double imageHeight;
+  double imageWidth;
+
+ private:
+  // States
+  TurretRotationState _turretRotationState{TurretRotationState::IDLE};
+  TurretAngleState _turretAngleState{TurretAngleState::IDLE};
+  TurretFlywheelState _turretFlywheelState{TurretFlywheelState::IDLE};
 
 
-		frc::Timer timer;
-		frc::Timer cameraSyncTimer;
+  PIDGains RotationPID1{"Turret General Gains", 0.05, 0.0, 0.001};
+  PIDGains AnglePID1{"Angle General Gains", 15.0, 5.0, 0.0};
+
+  // Scheduled gains
+  PIDGains RotationPID2{"Roation Precise Gains", 0.07, 0.001, 0.001};
+  PIDGains AnglePID2{"Angle Precise Gains", 15.0, 5.0, 0.0};
+  
+  PIDGains RotationPID3{"Rotation Lock On", 0.1, 0.003, 0.001};
+  PIDGains AnglePID3{"Angle Lock On", 15.0, 5.0, 0.0};
+
+  // NT
+  std::shared_ptr<nt::NetworkTable>_visionTable;
+  std::shared_ptr<nt::NetworkTable>_table;
+
+  // Setpoints
+  double _rotationSetpoint = 0, _angleSetpoint = 0, _flywheelSetpoint = 0;
 };

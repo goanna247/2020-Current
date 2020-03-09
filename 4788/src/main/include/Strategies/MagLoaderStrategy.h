@@ -2,18 +2,16 @@
 
 #include "controllers/Controllers.h"
 #include "strategy/Strategy.h"
-#include "MagLoader2.h" // meant to be magloader2.h
+#include "MagLoader.h"
 
 using ButtonState = wml::controllers::Controller;
 
-frc::Timer magTime;
-
-class MagLoaderManualStrategy : wml::Strategy {
+class MagLoaderManualStrategy : public wml::Strategy {
  public:
   MagLoaderManualStrategy(
-    const MagLoader &magLoader,
-    const wml::controllers::SmartControllerGroup &controllers
-  ) : wml::Strategy("Manual"), _magLoader(magLoader), _controllers(controllers) {
+    MagLoader &magLoader,
+    wml::controllers::SmartControllerGroup &controllers
+  ) : _magLoader(magLoader), _controllers(controllers) {
     Requires(&magLoader);
     SetCanBeInterrupted(true);
     SetCanBeReused(true);
@@ -77,8 +75,9 @@ class MagLoaderManualStrategy : wml::Strategy {
 
 
  private:
-  const MagLoader &_magLoader;
-  const wml::controllers::SmartControllerGroup &_controllers;
+  MagLoader &_magLoader;
+  wml::controllers::SmartControllerGroup &_controllers;
+  frc::Timer magTime;
   
   bool MagLoaderOverride = false;
 };

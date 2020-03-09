@@ -2,17 +2,15 @@
 
 #include "controllers/Controller.h"
 #include "strategy/Strategy.h"
-#include "Climber2.h" // Meant to be climber2.h
+#include "Climber.h"
 
 using ButtonState = wml::controllers::Controller;
 
-frc::Timer climbTime;
-
-class ClimberManualStrategy : wml::Strategy {
+class ClimberManualStrategy : public wml::Strategy {
  public:
   ClimberManualStrategy(
-    const Climber &climber,
-    const wml::controllers::SmartControllerGroup &controllers
+    Climber &climber,
+    wml::controllers::SmartControllerGroup &controllers
   ) : wml::Strategy("Manual"), _climber(climber), _controllers(controllers) {
     Requires(&climber);
     SetCanBeInterrupted(true);
@@ -25,29 +23,19 @@ class ClimberManualStrategy : wml::Strategy {
     double rightClimber_power = ControlMap::doJoyDeadzone(-_controllers.Get(ControlMap::ClimberControlRight));
     rightClimber_power *= ControlMap::LiftMaxSpeed;
 
-    if (_controllers.Get(ControlMap::ClimberToggle, ButtonState::ONRISE)) {
-      if (ClimberToggled)
-        ClimberToggled = false;
-      else
-        ClimberToggled = true;
-    }
+    if (_controllers.Get(ControlMap::ClimberToggle, ButtonState::ONRISE))
+      ClimberToggled = !ClimberToggled;
 
-    // Detect if climber is toggled
+    //Detect if climber is toggled
     if (ClimberToggled) {
-      if (climbTime.Get() > 1) {
-        _climber.SetClimber(ClimberState::MANUAL, leftClimber_power, rightClimber_power);
-        _climber.SetClimberActuator(ClimberActuatorState::DOWN);
-        climbTime.Reset();
-        climbTime.Stop();
-      } else {
-        _climber.SetClimber(ClimberState::IDLE, leftClimber_power, rightClimber_power);
-        _climber.SetClimberActuator(ClimberActuatorState::UP);
-      }
+      _climber.SetClimber(ClimberState::MANUAL, leftClimber_power, rightClimber_power);
+    } else {
+      _climber.SetClimber(ClimberState::DOWN, 0, 0);
     }
   }
  private:
-  const Climber &_climber;
-  const wml::controllers::SmartControllerGroup &_controllers;
+  Climber &_climber;
+  wml::controllers::SmartControllerGroup &_controllers;
 
   bool ClimberToggled = false;
 };

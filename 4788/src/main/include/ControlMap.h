@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "PIDScheduledController.h"
 
 #include "controllers/Controllers.h"
 
@@ -131,6 +132,9 @@ struct ControlMap {
 
   // Drive PID
   static const double DriveKp, DriveKi, DriveKd;
+
+  //Turret PID
+  // static const PIDGains TurretRotationPID, TurretAnglePID;
 
   // --------------- Defined Buttons -----------------
 
