@@ -51,6 +51,7 @@ void PIDScheduledController::SetWrap(double range) {
 
 double PIDScheduledController::Calculate(double processVariable, double dt, double feedforward) {
   double error = Wrap(_setpoint - processVariable);
+  // double error = _setpoint - processVariable;
   _avgError = _filterPos.Get(error);
 
   if (_threshIZone > 0 && std::abs(error) > _threshIZone) _integral = 0; // I zone

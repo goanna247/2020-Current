@@ -37,8 +37,13 @@ void curtin_frc_vision::run() {
 	inst.StartClientTeam(4788);
 
 
+<<<<<<< HEAD
 	vision.SetupVision(&Image, 50, 60, ResHeight, ResWidth, 1, "Turret Cam", true); // 0
 	vision.CustomTrack(&TrackingImage, &Image, 50, 70, 250, 255, 30, 255, 1 ,1);
+=======
+	vision.SetupVision(&Image, 0, 60, ResHeight, ResWidth, 0, "Turret Cam", true);
+	vision.CustomTrack(&TrackingImage, &Image, 50, 70, 240, 255, 30, 255, 1 ,1);
+>>>>>>> 316176fec92e3966f7980e081ab067d3545d7444
 	vision.Processing.visionHullGeneration.BoundingBox(&TrackingImage, &ProcessingOutput, &cx, &cy, 10);
 	#ifdef __DESKTOP__ 
 	std::cout << "Exposure Might be dissabled on local machine" << std::endl;
@@ -73,7 +78,7 @@ void curtin_frc_vision::run() {
 
 			visionTable->PutBoolean("Vision Active", true);
 
-			TargetX.SetDouble(offsetX-5);
+			TargetX.SetDouble(offsetX);
 			TargetY.SetDouble(offsetY);
 			ImageHeight.SetDouble(ResHeight);
 			ImageWidth.SetDouble(ResWidth);

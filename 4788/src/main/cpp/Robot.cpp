@@ -83,9 +83,9 @@ void Robot::RobotPeriodic() {
 
   std::cout << "Rotation Sensor: " << robotMap.turret.LeftLimit.Get() << std::endl;
 
-  // //std::cout << "TurretAngle: " << robotMap.turret.turretAngle.encoder->GetEncoderRotations() << std::endl;
+  std::cout << "TurretAngle: " << robotMap.turret.turretAngle.encoder->GetEncoderRotations() << std::endl;
   std::cout << "TurretRotation: " << robotMap.turret.turretRotation.encoder->GetEncoderRotations() << std::endl;
-  // //std::cout << "TurretFlyWheel: " << robotMap.turret.turretFlyWheel.encoder->GetEncoderAngularVelocity() << std::endl;
+  std::cout << "TurretFlyWheel: " << robotMap.turret.turretFlyWheel.encoder->GetEncoderAngularVelocity() << std::endl;
 
   // std::cout << "Flywheel encoder: " << robotMap.turret.flywheelEncoder.GetEncoderAngularVelocity() << std::endl;
   // std::cout << "Angle encoder" << robotMap.turret.angleEncoder.GetEncoderRotations() << std::endl;
@@ -112,6 +112,7 @@ void Robot::TeleopInit() {
   Schedule(drivetrain->GetDefaultStrategy(), true);
   Schedule(intake->GetDefaultStrategy(), true);
   //Schedule(magLoader->GetDefaultStrategy(), true);
+  Schedule(turret->GetDefaultStrategy(), true);
   Schedule(climber->GetDefaultStrategy(), true);
   Schedule(turret->GetDefaultStrategy(), true);
 
