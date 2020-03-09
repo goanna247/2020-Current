@@ -52,6 +52,7 @@
 // Local Files
 #include "ControlMap.h"
 #include "wayfinder.h"
+#include "PIDScheduledController.h"
 
 
 struct RobotMap {
@@ -131,9 +132,10 @@ struct RobotMap {
     wml::TalonSrx TurretFlyWheel2{ ControlMap::TurretFlyWheelPort2 };
     wml::actuators::MotorVoltageController flywheelMotors = wml::actuators::MotorVoltageController::Group(TurretFlyWheel, TurretFlyWheel2);
     wml::Gearbox turretFlyWheel{ &flywheelMotors, &flywheelEncoder, 0 };
-    
 
-
+    // Default PID Gains for turret
+    PIDGains RotationPID{"TurretRotationPID", 0.05, 0.0, 0.001};
+    PIDGains AnglePID{"TurretAnglePID", 15.0, 5.0, 0.0};
   };
   Turret turret;
 
@@ -147,9 +149,9 @@ struct RobotMap {
   Intake intake;
 
   struct MagLoader {
-    frc::AnalogInput StartMagLimit{ ControlMap::StartMagLimitPort };
-    frc::AnalogInput Position1Limit{ ControlMap::Position1LimitPort };
-    frc::AnalogInput Position5Limit{ ControlMap::Position5LimitPort };
+    frc::AnalogInput StartMagSensor{ ControlMap::StartMagLimitPort };
+    frc::AnalogInput IndexSensor{ ControlMap::Position1LimitPort };
+    frc::AnalogInput StopSensor{ ControlMap::Position5LimitPort };
 
     wml::TalonSrx MagLoaderMotor{ ControlMap::MagLoaderMotorPort, 2048 };
     wml::actuators::MotorVoltageController magLoaderMotors = wml::actuators::MotorVoltageController::Group(MagLoaderMotor);

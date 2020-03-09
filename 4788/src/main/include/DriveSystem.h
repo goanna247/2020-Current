@@ -40,47 +40,62 @@ class DrivetrainManual : public wml::Strategy {
 };
 
 // Class that Runs in Autonomous
-class DrivetrainAuto : public wml::Strategy {
-  public:
-    DrivetrainAuto(wml::Drivetrain &drivetrain, 
-                   WayFinder &wayFinder,
-                   wml::control::PIDGains gains,
-                   wml::actuators::DoubleSolenoid &ChangeGears, 
-                   wml::actuators::DoubleSolenoid &Shift2PTO, 
-                   int &autoSelector,
-                   bool &StartDoComplete,
-                   bool &strt,
-                   bool &p1,
-                   bool &p2,
-                   bool &p3,
-                   bool &end);
+  // class DrivetrainAuto : public wml::Strategy {
+  //   public:
+  //     DrivetrainAuto(
+//        wml::Drivetrain &drivetrain,
+//        RobotMap &robotMap,
+//        WayFinder &wayfinder):
+//         _drivetrain(drivetrain),
+//         _robotMap(robotMap),
+//         _wayfinder(wayfinder
+// ){
+//        Requires(&drivetrain);
+//        SetCanBeInterrupted(true);
+//        SetCanBeReused(true);
+//        _wayfinder.AutoConfig(ControlMap::MaxAutoDrivetrainSpeed, ControlMap::MaxAutoTurnSpeed);
+      //  }
 
-    void OnUpdate(double dt) override;
-    void WayPointSwitch();
 
-  private:
-    wml::Drivetrain &_drivetrain;
-    WayFinder &_wayFinder;
-    wml::control::PIDController _pid;
-    wml::actuators::DoubleSolenoid &_ChangeGears;
-    wml::actuators::DoubleSolenoid &_Shift2PTO;
-    double LeftPower = 0, RightPower = 0;
-    double currentSpeed;
+//     // void OnUpdate(double dt) override {
+//     //   if (_wayFinder.GetWayPointComplete()) {
+//     //     IsFinished();
+//     //   } else {
+//     //     // _wayFinder.GotoWaypoint(1, 1, 0, 1, 1, 0, false, dt);
+//     //   }
+//     // }
 
-    int &_autoSelector;
-    int AutoWaypointSwitcher = 1;
-    bool &_StartDoComplete;
-    bool &_strt;
-    bool &_p1;
-    bool &_p2;
-    bool &_p3;
-    bool &_end;
+//       //auto code 
+//    }
 
-    double DistanceInRotations;
-    double TurnPreviousError;
-    double TurnSum;
-    double CurrentHeading;
-};
+  //  private:
+//     wml::Drivetrain &_drivetrain;
+//     RobotMap &_robotMap;
+//     WayFinder &_wayfinder;
+//     double LeftPower = 0, RightPower = 0;
+//     double currentSpeed;
+
+//     double DistanceInRotations;
+//     double TurnPreviousError;
+//     double TurnSum;
+//     double CurrentHeading;
+ // };
+
+  // class DriveTrainAuto : public wml::Strategy {
+  //   public:
+  //     DriveTrainAuto(
+  //       wml::Drivetrain &drivetrain,
+  //       WayFinder &wayFinder,
+  //       RobotMap &robotMap):
+  //       _drivetrain(drivetrain),
+  //       _wayFinder()
+  //       {
+
+  //     }
+
+  //   private:
+
+  // };
 
 // Class that Runs in Test Mode
 class DrivetrainTest : public wml::Strategy {
@@ -89,7 +104,6 @@ class DrivetrainTest : public wml::Strategy {
                    wml::control::PIDGains gains);
 
     void OnUpdate(double dt) override;
-
   private:
     wml::Drivetrain &_drivetrain;
     wml::control::PIDController _pid;
