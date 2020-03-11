@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "PIDScheduledController.h"
 
 #include "controllers/Controllers.h"
 
@@ -8,7 +9,6 @@
 
 struct ControlMap {
   static void InitSmartControllerGroup(wml::controllers::SmartControllerGroup &contGroup);
-
 
   /**
    * CAN Port Number System We are using (PWM Not Included)
@@ -32,6 +32,11 @@ struct ControlMap {
   static const double xboxDeadzone;
   static const double triggerDeadzone;
 
+  static inline double doJoyDeadzone(double val) {
+    return std::fabs(val) > joyDeadzone ? val : 0;
+  }
+
+
   // PCM1
   static const int PCModule;
 
@@ -52,6 +57,7 @@ struct ControlMap {
   static const bool TuneTurretPID;
   static const bool TuneAnglePID;
   static const int TurretFlyWheelPort, TurretRotationPort, TurretAnglePort, TurretFlyWheelPort2;
+  static const int AngleEncoderChannelA, AngleEncoderChannelB;
   static const int TurretLeftLimitPort, TurretRightLimitPort, TurretAngleDownLimitPort;
   static const bool TurretLeftLimitInvert, TurretRightLimitInvert, TurretAngleDownLimitInvert;
   static const double TurretDistanceSetpoint1, TurretDistanceSetpoint2, TurretDistanceSetpoint3;
@@ -127,6 +133,9 @@ struct ControlMap {
   // Drive PID
   static const double DriveKp, DriveKi, DriveKd;
 
+  //Turret PID
+  // static const PIDGains TurretRotationPID, TurretAnglePID;
+
   // --------------- Defined Buttons -----------------
 
   // Turret PID Tuner
@@ -155,7 +164,7 @@ struct ControlMap {
   static const wml::controllers::tAxis TurretManualRotate;
   static const wml::controllers::tAxis TurretManualAngle;
   static const wml::controllers::tAxis TurretFlyWheelSpinUp;
-  static const wml::controllers::tButton TurretFire; // Might get rid of, if i automate Max speed of flywheel to fire.
+  static const wml::controllers::tButton TurretFire;
   static const wml::controllers::tButton Ball3Fire; // just for auto testing 
   static const wml::controllers::tButton RevFlyWheel;
   #endif
@@ -192,8 +201,6 @@ struct ControlMap {
 
   #else
   static const wml::controllers::tAxis ClimberControlRight;
-  static const wml::controllers::tButton ClimberUp;
-  static const wml::controllers::tButton ClimberDown;
   static const wml::controllers::tButton Shift2PTO; // Toggle
   static const wml::controllers::tAxis ClimberControlLeft;
   static const wml::controllers::tButton ClimberToggle;
